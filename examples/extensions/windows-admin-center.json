@@ -6,12 +6,10 @@
     },
     "masterProfile": {
       "count": 1,
-      "dnsPrefix": "",
       "vmSize": "Standard_D2_v3",
       "extensions": [
         {
-          "name": "windows-admin-center-k8s",
-          "singleOrAll": "single"
+          "name": "windows-admin-center-k8s"
         }
      ]
     },
@@ -36,7 +34,8 @@
     "extensionProfiles": [
       {
         "name": "windows-admin-center-k8s",
-        "version": "v1"
+        "version": "v1",
+        "rootURL": "https://wacextensionstorage.blob.core.windows.net/"
       }
     ],
     "servicePrincipalProfile": {
