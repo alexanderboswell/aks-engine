@@ -16,9 +16,11 @@
     "agentPoolProfiles": [
       {
         "name": "agentpool1",
-        "count": 3,
+        "count": 1,
         "vmSize": "Standard_D2_v3",
-        "availabilityProfile": "AvailabilitySet"
+        "availabilityProfile": "AvailabilitySet",
+        "osType": "Windows",
+        "osDiskSizeGB": 128
       }
     ],
     "linuxProfile": {
@@ -30,6 +32,13 @@
           }
         ]
       }
+    },
+    "windowsProfile": {
+      "adminUsername": "",
+      "adminPassword": "",
+      "windowsPublisher": "MicrosoftWindowsServer",
+      "windowsOffer": "WindowsServer",
+      "windowsSku": "2019-Datacenter-Core-with-Containers"
     },
     "extensionProfiles": [
       {
