@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: windows-admin-center-container
+  labels:
+    app: windows-admin-center-container
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: windows-admin-center-container
+      labels:
+        app: windows-admin-center-container
+    spec:
+      nodeSelector:
+        "beta.kubernetes.io/os": windows
+      containers:
+      - name: windows-admin-center-container
+        image: msftsme.azurecr.io/waccontainer:2019
+        command: ["powershell"]
+        args: ["-command", "C:\\sme\\Start.ps1 -mountPoint D: -useExternalStorage"]
+        resources:
+          limits:
+            cpu: 1
+            memory: 800M
+          requests:
+            cpu: .1
+            memory: 300M
+        volumeMounts:
+          - name: wac-storage
+            mountPath: 'D:'
+        ports:
+          - containerPort: 443
+      imagePullSecrets:
+      - name: msftsme.acr.secret
+      volumes:
+        - name: wac-storage
+          persistentVolumeClaim:
+            claimName: wac-storage-claim
+  selector:
+    matchLabels:
+      app: windows-admin-center-container
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: wac-storage-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi

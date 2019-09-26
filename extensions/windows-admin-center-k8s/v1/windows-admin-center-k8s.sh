@@ -34,10 +34,60 @@ then
 fi
 
 # Deploy container
-echo $(date) " - Deploying hello-world container"
+echo $(date) " - Deploying Windows Admin Center container"
 
-# kubectl run hello-world --quiet --image=busybox --restart=OnFailure -- echo "Hello from Windows Admin Center!"
+# Download helm install script from helm github
+curl -LO https://git.io/get_helm.sh
+# Set read / write access on file to only the current user
+chmod 700 get_helm.sh
+# Run install script
+./get_helm.sh
 
-echo $(date) " - run kubectl get pods --show-all to list the pods"
-echo $(date) " - run kubectl logs (passing the pod name gathered from kubectl get pods)"
-echo $(date) " - Script complete"
+# Enable tiller rbac
+kubectl apply -f helm-rbac.yaml
+
+# Install ingress controller with https passthrough
+kubectl create namespace ingress-basic
+
+# Create tiller pod on linux agent pool
+helm init --service-account tiller --node-selectors "beta.kubernetes.io/os"="linux"
+
+helm repo update
+
+helm install stable/nginx-ingress --name nginx-ingress --namespace ingress-basic \
+--set controller.replicaCount=2 --set controller.nodeSelector."beta.kubernetes.io/os"=linux \
+--set defaultBackend.nodeSelector."beta.kubernetes.io/os"=linux \
+--set controller.extraArgs.enable-ssl-passthrough=""
+
+kubectl get service -l app=nginx-ingress --namespace ingress-basic
+# Not solved yet
+# Will setup a public ip in azure so that we can connect to Windows Admin Center through the ingress controller
+# $ip = "52.183.79.40"
+# $dns = "wac-aks"
+# $publicid = az network public-ip list --query "[?ipAddress!=null]|[?contains(ipAddress, '$ip')].[id]" --output tsv
+# az network public-ip update --ids $publicid --dns-name $dns
+
+
+# install cert manager
+kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.10/deploy/manifests/00-crds.yaml
+kubectl create namespace cert-manager
+kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
+helm repo add jetstack https://charts.jetstack.io
+helm repo update
+
+# install cert manager on linux nodes
+helm install --name cert-manager --namespace cert-manager --version v0.10.0 \
+--set nodeSelector."beta.kubernetes.io/os"=linux \
+--set webhook.nodeSelector."beta.kubernetes.io/os"=linux \
+--set cainjector.nodeSelector."beta.kubernetes.io/os"=linux jetstack/cert-manager
+
+# create cluster issuer
+kubectl apply -f cluster-issuer.yaml
+
+# create ingress route
+kubectl apply -f wac-ingress.yaml
+
+# Deploy Windows Admin Center 
+kubectl apply -f wac-container.yml
+
+echo $(date) " - Deploying Windows Admin Center complete"
