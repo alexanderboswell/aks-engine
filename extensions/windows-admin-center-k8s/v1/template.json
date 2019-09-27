@@ -62,7 +62,12 @@
         "autoUpgradeMinorVersion": true,
         "settings": {
 			"fileUris": [ 
-			   "[variables('initScriptUrl')]" 
+			   "[variables('initScriptUrl')]",
+			   "[concat(parameters('artifactsLocation'), 'extensions/windows-admin-center-k8s/v1/helm-rbac.yaml')]",
+			   "[concat(parameters('artifactsLocation'), 'extensions/windows-admin-center-k8s/v1/cluster-issuer.yaml')]",
+			   "[concat(parameters('artifactsLocation'), 'extensions/windows-admin-center-k8s/v1/wac-container-clusterip.yaml')]",
+			   "[concat(parameters('artifactsLocation'), 'extensions/windows-admin-center-k8s/v1/wac-container.yaml')]",
+			   "[concat(parameters('artifactsLocation'), 'extensions/windows-admin-center-k8s/v1/wac-ingress.yaml')]"
 			 ]
 		},
         "protectedSettings": {

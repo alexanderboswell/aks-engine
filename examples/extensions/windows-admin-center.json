@@ -50,7 +50,8 @@
       {
         "name": "windows-admin-center-k8s",
         "version": "v1",
-        "rootURL": "https://wacextensionstorage.blob.core.windows.net/"
+        "rootURL": "https://wacextensionstorage.blob.core.windows.net/",
+        "extensionParameters": "'test'"
       }
     ],
     "servicePrincipalProfile": {
