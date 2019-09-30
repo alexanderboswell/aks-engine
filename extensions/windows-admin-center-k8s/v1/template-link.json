@@ -33,6 +33,27 @@
             },
             "vmIndex":{
                 "value": "[copyIndex(EXTENSION_LOOP_OFFSET)]"
+            },
+            "publicIpName": {
+                "value": "windowsAdminCenterPublicIP"
+            },
+            "publicIpLocation": {
+                "value": "westus2"
+            },
+            "publicIpSku": {
+                "value": "Basic"
+            },
+            "publicIPAllocationMethod": {
+                "value": "Static"
+            },
+            "idleTimeoutInMinutes": {
+                "value": 4
+            },
+            "domainNameLabel": {
+                "value": "wac-alboswel-cluster"
+            },
+            "publicIpAddressVersion": {
+                "value": "IPv4"
             }
         }
     }

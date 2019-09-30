@@ -42,16 +42,64 @@
 			"metadata": {
 				"description": "index in the pool of the current agent, used so that we can get the extension name right"
 			}
-		}
+		},
+		"publicIpName": {
+            "type": "string"
+        },
+        "publicIpLocation": {
+            "type": "string"
+        },
+        "publicIpSku": {
+            "type": "string",
+            "allowedValues": [
+                "Basic",
+                "Standard"
+            ]
+        },
+        "publicIPAllocationMethod": {
+            "type": "string",
+            "allowedValues": [
+                "Dynamic",
+                "Static"
+            ]
+        },
+        "idleTimeoutInMinutes": {
+            "type": "int"
+        },
+        "domainNameLabel": {
+            "type": "string"
+        },
+        "publicIpAddressVersion": {
+            "type": "string"
+        }
    },
    "variables": {  
 		"singleQuote": "'",
 		"initScriptUrl": "[concat(parameters('artifactsLocation'), 'extensions/windows-admin-center-k8s/v1/windows-admin-center-k8s.sh')]"
    },
-   "resources": [  
+   "resources": [
+	{
+		"apiVersion": "2019-02-01",
+		"type": "Microsoft.Network/publicIPAddresses",
+		"name": "[parameters('publicIpName')]",
+		"location": "[parameters('publicIpLocation')]",
+		"sku": {
+			"name": "[parameters('publicIpSku')]"
+		},
+		"properties": {
+			"publicIPAllocationMethod": "Static",
+			"idleTimeoutInMinutes": "[parameters('idleTimeoutInMinutes')]",
+			"publicIpAddressVersion": "[parameters('publicIpAddressVersion')]",
+			"dnsSettings": {
+				"domainNameLabel": "[parameters('domainNameLabel')]"
+			}
+		}
+	},  
 	{
       "apiVersion": "[parameters('apiVersionDeployments')]",
-      "dependsOn": [],
+      "dependsOn": [
+		"[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpName'))]"
+	  ],
       "location": "[resourceGroup().location]",
       "type": "Microsoft.Compute/virtualMachines/extensions",
 	  "name": "[concat(parameters('targetVMName'),'/cse', '-', parameters('targetVMType'), '-', parameters('vmIndex'))]", 
@@ -71,7 +119,7 @@
 			 ]
 		},
         "protectedSettings": {
-			"commandToExecute": "[concat('/bin/bash -c \"/bin/bash ./windows-admin-center-k8s.sh ', variables('singleQuote'), parameters('extensionParameters'), variables('singleQuote'), ' >> /var/log/azure/windows-admin-center-provision.log 2>&1 &\" &')]"
+			"commandToExecute": "[concat('/bin/bash -c \"/bin/bash ./windows-admin-center-k8s.sh ', variables('singleQuote'), reference(parameters('publicIpName')).ipAddress, variables('singleQuote'), ' >> /var/log/azure/windows-admin-center-provision.log 2>&1 &\" &')]"
         }
       }
     }
