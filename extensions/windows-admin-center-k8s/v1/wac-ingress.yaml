@@ -6,9 +6,9 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: nginx
     certmanager.k8s.io/cluster-issuer: letsencrypt-prod
-    # nginx.ingress.kubernetes.io/ssl-passthrough: true
-    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-    # nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.org/websocket-services: "wac-container-clusterip"
+    nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth"
+    nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$escaped_request_uri"
 spec:
   tls:
   - hosts:
@@ -20,5 +20,26 @@ spec:
       paths:
       - backend:
           serviceName: wac-container-clusterip
-          servicePort: 443
+          servicePort: 80
         path: /
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: oauth2-proxy-ingress
+  namespace: ingress-basic
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  tls:
+  - hosts:
+    - wac-aks.westus2.cloudapp.azure.com
+    secretName: tls-secret-prod
+  rules:
+  - host: wac-aks.westus2.cloudapp.azure.com
+    http:
+      paths:
+      - path: /oauth2
+        backend:
+          serviceName: oauth2-proxy
+          servicePort: 4180

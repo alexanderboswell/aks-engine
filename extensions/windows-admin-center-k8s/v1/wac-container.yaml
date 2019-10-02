@@ -16,7 +16,7 @@ spec:
         "beta.kubernetes.io/os": windows
       containers:
       - name: windows-admin-center-container
-        image: msftsme.azurecr.io/waccontainerbase:http
+        image: msftsme.azurecr.io/waccontainerbase:anonymous
         command: ["powershell"]
         args: ["-command", "C:\\sme\\Start.ps1 -mountPoint D: -useExternalStorage"]
         resources:

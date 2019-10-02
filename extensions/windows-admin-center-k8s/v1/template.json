@@ -31,10 +31,9 @@
 			}
 		},
 		"extensionParameters": {
-			"type": "securestring",
-			"minLength": 0,
+			"type": "object",
 			"metadata": {
-				"description": "Custom Parameter for Extension - for windows-admin-center, this is empty"
+				"description": "Extension parameters for Windows Admin Center"
 			}
 		},
 		"vmIndex": {
@@ -119,7 +118,7 @@
 			 ]
 		},
         "protectedSettings": {
-			"commandToExecute": "[concat('/bin/bash -c \"/bin/bash ./windows-admin-center-k8s.sh ', variables('singleQuote'), reference(parameters('publicIpName')).ipAddress, variables('singleQuote'), ' >> /var/log/azure/windows-admin-center-provision.log 2>&1 &\" &')]"
+			"commandToExecute": "[concat('/bin/bash -c \"/bin/bash ./windows-admin-center-k8s.sh ', variables('singleQuote'), parameters('extensionParameters'), variables('singleQuote'), reference(parameters('publicIpName')).ipAddress, ' >> /var/log/azure/windows-admin-center-provision.log 2>&1 &\" &')]"
         }
       }
     }

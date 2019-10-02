@@ -3,7 +3,7 @@
 # Script file to install the docker hello-world container
 
 # exit immediately if we error
-# set -e
+set -e
 
 log() {
     echo $(date) $1
@@ -50,12 +50,21 @@ install_helm() {
 }
 
 add_jetstack() {
-    helm repo add jetstack https://charts.jetstack.io
+    log "adding jetstack to helm"
+    # Known work around
+    if [ ! -z "$HELM_HOME" ]
+    then 
+        rm -rf $HELM_HOME
+        mkdir $HELM_HOME
+        export HELM_HOME=$(cd $HELM_HOME && pwd)
+    else 
+        export HELM_HOME=$(pwd)
+    fi
 
-#      mkdir -p ".helm/repository/cache/.helm/repository/cache/"
-# helm init --client-only
-# helm repo update
-# helm repo add jetstack https://charts.jetstack.io
+    helm init --client-only
+    helm repo update
+    helm repo add jetstack https://charts.jetstack.io
+    log "added jetstack to helm"
 }
 
 create_tiller_pod() {
@@ -96,23 +105,24 @@ install_ingress_controller() {
     fi
 }
 
-create_cert_manager() {
+install_cert_manager() {
+    add_jetstack
     log "starting install of cert manager"
+
     # install cert manager
     kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.10/deploy/manifests/00-crds.yaml
     kubectl create namespace cert-manager
     kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
-}
 
-install_cert_manager() {
-    heml init --client-only
-    
-    log "finishing install of cert manager"
     # install cert manager on linux nodes
-    helm install --name cert-manager --namespace cert-manager --version v0.10.0 \
-    --set nodeSelector."beta.kubernetes.io/os"=linux \
-    --set webhook.nodeSelector."beta.kubernetes.io/os"=linux \
-    --set cainjector.nodeSelector."beta.kubernetes.io/os"=linux jetstack/cert-manager
+    helm install --name cert-manager  --namespace cert-manager --version v0.10.0 \
+    --set nodeSelector."beta\.kubernetes\.io/os"="linux" \
+    --set webhook.nodeSelector."beta\.kubernetes\.io/os"="linux" \
+    --set cainjector.nodeSelector."beta\.kubernetes\.io/os"="linux" jetstack/cert-manager
+
+    log "waiting for cert-manager pods to be ready" 
+    kubectl wait --for=condition=Ready pods --all=true --namespace cert-manager --timeout=550s
+    log "cert-manager pods ready"
 }
 
 # start of script
@@ -120,9 +130,9 @@ install_cert_manager() {
 log "Deploying Windows Admin Center container"  
 wait_for_kubernetes
 
-install_helm 
+# eval $1
 
-add_jetstack
+install_helm 
 
 # Enable tiller rbac
 kubectl apply -f helm-rbac.yaml  
@@ -133,20 +143,19 @@ create_tiller_pod
 
 install_ingress_controller $1
 
-create_cert_manager
-
 install_cert_manager
 
 # create cluster issuer
 kubectl apply -f cluster-issuer.yaml
+log "applied cluster-issuer.yaml"  
+
+#Deploy Windows Admin Center 
+kubectl apply -f wac-container.yaml
+log "applied wac-container.yaml"  
+
+# setup oauth proxy
+kubectl apply -f oauth2-proxy.yaml
 
 # create ingress route
 kubectl apply -f wac-ingress.yaml
-
-# Deploy Windows Admin Center 
-kubectl apply -f wac-container.yml
-
-log "Deploying Windows Admin Center complete"
-
-log 'Public IP address: ' 
-log $1
+log "applied wac-ingress.yaml"  
