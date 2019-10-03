@@ -182,6 +182,8 @@ find_and_replace "COOKIE_SECRET_REPLACE" $AAD_COOKIE_SECRET oauth2-proxy.yaml
 kubectl apply -f oauth2-proxy.yaml
 
 
+find_and_replace "HOST_NAME_REPLACE" $DNS_FQDN wac-ingress.yaml
+
 # Create ingress route
 kubectl apply -f wac-ingress.yaml
 log "applied wac-ingress.yaml"
