@@ -169,7 +169,7 @@ kubectl apply -f cluster-issuer.yaml
 log "applied cluster-issuer.yaml"  
 
 # Create secret for pulling Windows Admin Center Image
-kubectl create secret docker-registry msftsme.acr.secret --docker-server=msftsme.azurecr.io --docker-username=$AZURECR_USERNAME --docker-password=$AZURECR_PASSWORD
+kubectl create secret docker-registry msftsme.acr.secret --docker-server=msftsme.azurecr.io --docker-username=$AZURECR_USERNAME --docker-password=$AZURECR_PASSWORD --namespace ingress-basic
 
 # Deploy Windows Admin Center
 kubectl apply -f wac-container-clusterip.yaml

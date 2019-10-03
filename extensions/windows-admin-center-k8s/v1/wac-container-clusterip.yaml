@@ -32,6 +32,8 @@ spec:
             mountPath: 'D:'
         ports:
           - containerPort: 80
+      imagePullSecrets:
+      - name: msftsme.acr.secret
       volumes:
         - name: wac-storage
           persistentVolumeClaim:
