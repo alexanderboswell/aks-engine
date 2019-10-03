@@ -2,7 +2,7 @@
 
 # Script file to install the docker hello-world container
 
-# exit immediately if we error
+# Exit immediately if we error
 set -e
 
 log() {
@@ -109,12 +109,12 @@ install_cert_manager() {
     add_jetstack
     log "starting install of cert manager"
 
-    # install cert manager
+    # Install cert manager
     kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.10/deploy/manifests/00-crds.yaml
     kubectl create namespace cert-manager
     kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
 
-    # install cert manager on linux nodes
+    # Install cert manager on linux nodes
     helm install --name cert-manager  --namespace cert-manager --version v0.10.0 \
     --set nodeSelector."beta\.kubernetes\.io/os"="linux" \
     --set webhook.nodeSelector."beta\.kubernetes\.io/os"="linux" \
@@ -125,12 +125,14 @@ install_cert_manager() {
     log "cert-manager pods ready"
 }
 
-parse_aad_credentials() {
-    creds_array=($(echo $AAD_CREDENTIALS | tr " " "\n"))
+parse_credentials() {
+    creds_array=($(echo $CREDENTIALS | tr " " "\n"))
 
-    AAD_CLIENT_ID=${creds_array[0]}
-    AAD_CLIENT_SECRET=${creds_array[1]}
-    AAD_COOKIE_SECRET=${creds_array[2]}
+    AZURECR_USERNAME=${creds_array[0]}
+    AZURECR_PASSWORD=${creds_array[1]}
+    AAD_CLIENT_ID=${creds_array[2]}
+    AAD_CLIENT_SECRET=${creds_array[3]}
+    AAD_COOKIE_SECRET=${creds_array[4]}
 }
 
 find_and_replace() {
@@ -140,12 +142,12 @@ find_and_replace() {
     sed -i -e "s/$1/$2/g" $3
 }
 
-# start of script
+# Start of script
 
 log "Deploying Windows Admin Center container"  
 wait_for_kubernetes
 
-# eval $1
+parse_credentials
 
 install_helm 
 
@@ -160,24 +162,26 @@ install_ingress_controller $1
 
 install_cert_manager
 
-# create cluster issuer
+# Create cluster issuer
 kubectl apply -f cluster-issuer.yaml
 log "applied cluster-issuer.yaml"  
 
-#Deploy Windows Admin Center 
+# Create secret for pulling Windows Admin Center Image
+kubectl create secret docker-registry msftsme.acr.secret --docker-server=msftsme.azurecr.io --docker-username=$AZURECR_USERNAME --docker-password=$AZURECR_PASSWORD
+
+# Deploy Windows Admin Center
 kubectl apply -f wac-container.yaml
 log "applied wac-container.yaml"  
 
-parse_aad_credentials
-
+# Update yaml file with passed in AAD credentials
 find_and_replace "CLIENT_ID_REPLACE" $AAD_CLIENT_ID oauth2-proxy.yaml
 find_and_replace "CLIENT_SECRET_REPLACE" $AAD_CLIENT_SECRET oauth2-proxy.yaml
 find_and_replace "COOKIE_SECRET_REPLACE" $AAD_COOKIE_SECRET oauth2-proxy.yaml
 
-# setup oauth proxy
+# Setup oauth proxy
 kubectl apply -f oauth2-proxy.yaml
 
 
-# create ingress route
+# Create ingress route
 kubectl apply -f wac-ingress.yaml
 log "applied wac-ingress.yaml"
