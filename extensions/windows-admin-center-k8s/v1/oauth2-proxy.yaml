@@ -22,9 +22,9 @@ spec:
         - --http-address=0.0.0.0:4180
         - --pass-authorization-header=false
         - --cookie-secure=true
-        - --client-id=
-        - --client-secret=
-        - --cookie-secret=
+        - --client-id=CLIENT_ID_REPLACE
+        - --client-secret=CLIENT_SECRET_REPLACE
+        - --cookie-secret=COOKIE_SECRET_REPLACE
         image: docker.io/bitnami/oauth2-proxy:latest
         name: oauth2-proxy
         ports:

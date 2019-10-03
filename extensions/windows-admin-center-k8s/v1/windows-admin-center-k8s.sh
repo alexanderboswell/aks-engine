@@ -101,7 +101,7 @@ install_ingress_controller() {
 
         kubectl get service -l app=nginx-ingress --namespace ingress-basic
     else
-        log "1 is not a ip address, fail"
+        log "$1 is not a ip address, fail"
     fi
 }
 
@@ -123,6 +123,21 @@ install_cert_manager() {
     log "waiting for cert-manager pods to be ready" 
     kubectl wait --for=condition=Ready pods --all=true --namespace cert-manager --timeout=550s
     log "cert-manager pods ready"
+}
+
+parse_aad_credentials() {
+    creds_array=($(echo $AAD_CREDENTIALS | tr " " "\n"))
+
+    AAD_CLIENT_ID=${creds_array[0]}
+    AAD_CLIENT_SECRET=${creds_array[1]}
+    AAD_COOKIE_SECRET=${creds_array[2]}
+}
+
+find_and_replace() {
+    # 1. text to replace
+    # 2. new text
+    # 3. file to search
+    sed -i -e "s/$1/$2/g" $3
 }
 
 # start of script
@@ -153,9 +168,16 @@ log "applied cluster-issuer.yaml"
 kubectl apply -f wac-container.yaml
 log "applied wac-container.yaml"  
 
+parse_aad_credentials
+
+find_and_replace "CLIENT_ID_REPLACE" $AAD_CLIENT_ID oauth2-proxy.yaml
+find_and_replace "CLIENT_SECRET_REPLACE" $AAD_CLIENT_SECRET oauth2-proxy.yaml
+find_and_replace "COOKIE_SECRET_REPLACE" $AAD_COOKIE_SECRET oauth2-proxy.yaml
+
 # setup oauth proxy
 kubectl apply -f oauth2-proxy.yaml
 
+
 # create ingress route
 kubectl apply -f wac-ingress.yaml
-log "applied wac-ingress.yaml"  
+log "applied wac-ingress.yaml"
