@@ -113,15 +113,15 @@
 			   "[concat(parameters('artifactsLocation'), 'extensions/windows-admin-center-k8s/v1/helm-rbac.yaml')]",
 			   "[concat(parameters('artifactsLocation'), 'extensions/windows-admin-center-k8s/v1/cluster-issuer.yaml')]",
 			   "[concat(parameters('artifactsLocation'), 'extensions/windows-admin-center-k8s/v1/wac-container-clusterip.yaml')]",
-			   "[concat(parameters('artifactsLocation'), 'extensions/windows-admin-center-k8s/v1/wac-container.yaml')]",
-			   "[concat(parameters('artifactsLocation'), 'extensions/windows-admin-center-k8s/v1/wac-ingress.yaml')]"
+			   "[concat(parameters('artifactsLocation'), 'extensions/windows-admin-center-k8s/v1/wac-ingress.yaml')]",
+			   "[concat(parameters('artifactsLocation'), 'extensions/windows-admin-center-k8s/v1/oauth2-proxy.yaml')]"
 			 ]
 		},
         "protectedSettings": {
-			"commandToExecute": "[concat('CREDENTIALS=, parameters('extensionParameters'),  DNS_FQDN=', reference(parameters('publicIpName')).dnsSettings.fqdn , IPADDRESS=', reference(parameters('publicIpName')).ipAddress, ' /bin/bash -c \"/bin/bash ./windows-admin-center-k8s.sh ', ' >> /var/log/azure/windows-admin-center-provision.log 2>&1 &\" &')]"
+			"commandToExecute": "[concat('CREDENTIALS=',  variables('singleQuote'), parameters('extensionParameters'), variables('singleQuote'), ' DNS_FQDN=', reference(parameters('publicIpName')).dnsSettings.fqdn, ' IPADDRESS=', reference(parameters('publicIpName')).ipAddress, ' /bin/bash -c \"/bin/bash ./windows-admin-center-k8s.sh ', ' >> /var/log/azure/windows-admin-center-provision.log 2>&1 &\" &')]"
         }
       }
     }
 	],
-   "outputs": {  }
+   "outputs": { }
 }

@@ -1,22 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: windows-admin-center-container
+  namespace: ingress-basic
+  name: wac-container-clusterip
   labels:
-    app: windows-admin-center-container
+    app: wac-container-clusterip
 spec:
   replicas: 1
   template:
     metadata:
-      name: windows-admin-center-container
+      name: wac-container-clusterip
       labels:
-        app: windows-admin-center-container
+        app: wac-container-clusterip
     spec:
       nodeSelector:
         "beta.kubernetes.io/os": windows
       containers:
-      - name: windows-admin-center-container
-        image: msftsme.azurecr.io/waccontainerbase:anonymous
+      - name: wac-container-clusterip
+        image: msftsme.azurecr.io/waccontainerbase:anonymous2
         command: ["powershell"]
         args: ["-command", "C:\\sme\\Start.ps1 -mountPoint D: -useExternalStorage"]
         resources:
@@ -30,20 +31,19 @@ spec:
           - name: wac-storage
             mountPath: 'D:'
         ports:
-          - containerPort: 443
-      imagePullSecrets:
-      - name: msftsme.acr.secret
+          - containerPort: 80
       volumes:
         - name: wac-storage
           persistentVolumeClaim:
             claimName: wac-storage-claim
   selector:
     matchLabels:
-      app: windows-admin-center-container
+      app: wac-container-clusterip
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
+  namespace: ingress-basic
   name: wac-storage-claim
 spec:
   accessModes:
@@ -51,3 +51,15 @@ spec:
   resources:
     requests:
       storage: 5Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: ingress-basic
+  name: wac-container-clusterip
+spec:
+  ports:
+  - protocol: TCP
+    port: 80
+  selector:
+    app: wac-container-clusterip

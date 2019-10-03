@@ -158,9 +158,11 @@ log "applied helm-rbac.yaml"
 
 create_tiller_pod
 
-install_ingress_controller $1
+install_ingress_controller $IPADDRESS
 
 install_cert_manager
+
+sleep 5m
 
 # Create cluster issuer
 kubectl apply -f cluster-issuer.yaml
@@ -170,7 +172,7 @@ log "applied cluster-issuer.yaml"
 kubectl create secret docker-registry msftsme.acr.secret --docker-server=msftsme.azurecr.io --docker-username=$AZURECR_USERNAME --docker-password=$AZURECR_PASSWORD
 
 # Deploy Windows Admin Center
-kubectl apply -f wac-container.yaml
+kubectl apply -f wac-container-clusterip.yaml
 log "applied wac-container.yaml"  
 
 # Update yaml file with passed in AAD credentials
