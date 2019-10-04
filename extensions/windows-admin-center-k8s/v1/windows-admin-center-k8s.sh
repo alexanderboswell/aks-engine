@@ -162,6 +162,7 @@ install_ingress_controller $IPADDRESS
 
 install_cert_manager
 
+# Known work around for cert-manager server to be ready to take requests
 sleep 5m
 
 # Create cluster issuer

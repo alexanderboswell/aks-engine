@@ -18,7 +18,7 @@ spec:
       containers:
       - args:
         - --provider=azure
-        - --email-domain=outlook.com
+        - --email-domain=*
         - --http-address=0.0.0.0:4180
         - --pass-authorization-header=false
         - --cookie-secure=true
