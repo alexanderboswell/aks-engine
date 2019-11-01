@@ -83,7 +83,7 @@ create_tiller_pod() {
 
 install_ingress_controller() {
     # Install ingress controller with https passthrough
-    kubectl create namespace ingress-basic 
+    kubectl create namespace windows-admin-center
     helm repo update
 
     log "validating public ip address"
@@ -92,14 +92,14 @@ install_ingress_controller() {
         log "public ip address is valid"
         log "started installing ingress controller"
 
-        helm install stable/nginx-ingress --name nginx-ingress --namespace ingress-basic \
+        helm install stable/nginx-ingress --name nginx-ingress --namespace windows-admin-center \
         --set-string controller.replicaCount=2 --set controller.nodeSelector."beta\.kubernetes\.io/os"="linux" \
         --set defaultBackend.nodeSelector."beta\.kubernetes\.io/os"="linux" \
         --set-string controller.service.loadBalancerIP=$1
 
         log "installed ingress controller"
 
-        kubectl get service -l app=nginx-ingress --namespace ingress-basic
+        kubectl get service -l app=nginx-ingress --namespace windows-admin-center
     else
         log "$1 is not a ip address, fail"
     fi
@@ -170,7 +170,7 @@ kubectl apply -f cluster-issuer.yaml
 log "applied cluster-issuer.yaml"  
 
 # Create secret for pulling Windows Admin Center Image
-kubectl create secret docker-registry msftsme.acr.secret --docker-server=msftsme.azurecr.io --docker-username=$AZURECR_USERNAME --docker-password=$AZURECR_PASSWORD --namespace ingress-basic
+kubectl create secret docker-registry msftsme.acr.secret --docker-server=msftsme.azurecr.io --docker-username=$AZURECR_USERNAME --docker-password=$AZURECR_PASSWORD --namespace windows-admin-center
 
 # Deploy Windows Admin Center
 kubectl apply -f wac-container-clusterip.yaml

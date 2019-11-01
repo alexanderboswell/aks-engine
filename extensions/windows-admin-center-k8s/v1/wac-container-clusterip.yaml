@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: ingress-basic
+  namespace: windows-admin-center
   name: wac-container-clusterip
   labels:
     app: wac-container-clusterip
@@ -45,7 +45,7 @@ spec:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  namespace: ingress-basic
+  namespace: windows-admin-center
   name: wac-storage-claim
 spec:
   accessModes:
@@ -57,7 +57,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: ingress-basic
+  namespace: windows-admin-center
   name: wac-container-clusterip
 spec:
   ports:
