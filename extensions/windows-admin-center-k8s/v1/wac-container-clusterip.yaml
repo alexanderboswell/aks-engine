@@ -17,7 +17,7 @@ spec:
         "beta.kubernetes.io/os": windows
       containers:
       - name: wac-container-clusterip
-        image: msftsme.azurecr.io/waccontainerbase:anonymous2
+        image: msftsme.azurecr.io/windowsadmincenter:latest
         command: ["powershell"]
         args: ["-command", "C:\\sme\\Start.ps1 -mountPoint D: -useExternalStorage"]
         resources:
