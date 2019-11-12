@@ -12,10 +12,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - wac-alboswel-cluster.westus2.cloudapp.azure.com
+    - HOST_NAME_REPLACE
     secretName: tls-secret-prod
   rules:
-  - host: wac-alboswel-cluster.westus2.cloudapp.azure.com
+  - host: HOST_NAME_REPLACE
     http:
       paths:
       - backend:
@@ -33,10 +33,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - wac-alboswel-cluster.westus2.cloudapp.azure.com
+    - HOST_NAME_REPLACE
     secretName: tls-secret-prod
   rules:
-  - host: wac-alboswel-cluster.westus2.cloudapp.azure.com
+  - host: HOST_NAME_REPLACE
     http:
       paths:
       - path: /oauth2
