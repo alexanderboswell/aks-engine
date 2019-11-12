@@ -50,7 +50,7 @@
                 "value": 4
             },
             "domainNameLabel": {
-                "value": "wac-alboswel-cluster"
+                "value": "sme-k8s-cluster-1"
             },
             "publicIpAddressVersion": {
                 "value": "IPv4"

@@ -172,9 +172,13 @@ log "applied cluster-issuer.yaml"
 # Create secret for pulling Windows Admin Center Image
 kubectl create secret docker-registry msftsme.acr.secret --docker-server=msftsme.azurecr.io --docker-username=$AZURECR_USERNAME --docker-password=$AZURECR_PASSWORD --namespace windows-admin-center
 
+# Create service account for accessing k8s API from Windows Admin Center
+kubectl apply -f service-account.yaml
+log "applied service-account.yaml"  
+
 # Deploy Windows Admin Center
-kubectl apply -f wac-container-clusterip.yaml
-log "applied wac-container.yaml"  
+kubectl apply -f windows-admin-center.yaml
+log "applied windows-admin-center.yaml"  
 
 # Update yaml file with passed in AAD credentials
 find_and_replace "CLIENT_ID_REPLACE" $AAD_CLIENT_ID oauth2-proxy.yaml
@@ -185,8 +189,8 @@ find_and_replace "COOKIE_SECRET_REPLACE" $AAD_COOKIE_SECRET oauth2-proxy.yaml
 kubectl apply -f oauth2-proxy.yaml
 
 
-find_and_replace "HOST_NAME_REPLACE" $DNS_FQDN wac-ingress.yaml
+find_and_replace "HOST_NAME_REPLACE" $DNS_FQDN ingress.yaml
 
 # Create ingress route
-kubectl apply -f wac-ingress.yaml
-log "applied wac-ingress.yaml"
+kubectl apply -f ingress.yaml
+log "applied ingress.yaml"
