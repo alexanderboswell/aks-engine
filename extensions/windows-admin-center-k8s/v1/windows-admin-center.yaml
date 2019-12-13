@@ -18,7 +18,7 @@ spec:
       serviceAccountName: wac-service-account
       containers:
       - name: wac-container-clusterip
-        image: msftsme.azurecr.io/windowsadmincenter:latest
+        image: msftsme.azurecr.io/windowsadmincenter:prodBuildPipeline
         imagePullPolicy: Always
         command: ["powershell"]
         args: ["-command", "C:\\containers\\DockerStart.ps1 -mountPoint D: -useExternalStorage -aksEngineExtension"]
